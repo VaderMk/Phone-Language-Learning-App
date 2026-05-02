@@ -13,7 +13,6 @@ export const SentencePuzzle: React.FC<SentencePuzzleProps> = ({ puzzle, onCorrec
   const [availableWords, setAvailableWords] = useState<PuzzleWord[]>([]);
   const [selectedWords, setSelectedWords] = useState<PuzzleWord[]>([]);
   const [status, setStatus] = useState<'idle' | 'wrong' | 'correct'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
 
   // Scramble words initially
   useEffect(() => {
@@ -21,7 +20,6 @@ export const SentencePuzzle: React.FC<SentencePuzzleProps> = ({ puzzle, onCorrec
     setAvailableWords(shuffled);
     setSelectedWords([]);
     setStatus('idle');
-    setErrorMessage('');
   }, [puzzle]);
 
   const handleSelectWord = (word: PuzzleWord) => {
@@ -51,12 +49,10 @@ export const SentencePuzzle: React.FC<SentencePuzzleProps> = ({ puzzle, onCorrec
       }, 1000);
     } else {
       setStatus('wrong');
-      setErrorMessage('Verbul stă mereu pe locul 2!');
       onWrong();
       setTimeout(() => {
         // Reset after shake
         setStatus('idle');
-        setErrorMessage('');
         const shuffled = [...puzzle.parts].sort(() => Math.random() - 0.5);
         setAvailableWords(shuffled);
         setSelectedWords([]);
@@ -117,20 +113,6 @@ export const SentencePuzzle: React.FC<SentencePuzzleProps> = ({ puzzle, onCorrec
         </AnimatePresence>
       </div>
 
-      {/* Error Message */}
-      <AnimatePresence>
-        {status === 'wrong' && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="text-red-400 font-bold mb-4 bg-red-500/10 py-2 px-4 rounded-lg"
-          >
-            {errorMessage}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
       {/* Success Message */}
       <AnimatePresence>
         {status === 'correct' && (
