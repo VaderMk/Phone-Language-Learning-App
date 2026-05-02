@@ -30,3 +30,66 @@ export const words: Word[] = [
   { id: 19, german: 'Haus', article: 'das', translation: 'casă', gender: 'Neutru' },
   { id: 20, german: 'Hund', article: 'der', translation: 'câine', gender: 'Masculin' },
 ];
+
+export type WordCategory = 'noun' | 'verb' | 'pronoun';
+
+export interface PuzzleWord {
+  id: string;
+  text: string;
+  category: WordCategory;
+  article?: Article;
+}
+
+export interface SentencePuzzle {
+  id: number;
+  translation: string;
+  parts: PuzzleWord[];
+}
+
+export const puzzles: SentencePuzzle[] = [
+  {
+    id: 1,
+    translation: 'Eu beau cafea',
+    parts: [
+      { id: '1', text: 'Ich', category: 'pronoun' },
+      { id: '2', text: 'trinke', category: 'verb' },
+      { id: '3', text: 'Kaffee', category: 'noun', article: 'der' }
+    ]
+  },
+  {
+    id: 2,
+    translation: 'Eu mănânc măr',
+    parts: [
+      { id: '1', text: 'Ich', category: 'pronoun' },
+      { id: '2', text: 'esse', category: 'verb' },
+      { id: '3', text: 'Apfel', category: 'noun', article: 'der' }
+    ]
+  },
+  {
+    id: 3,
+    translation: 'Eu am apă',
+    parts: [
+      { id: '1', text: 'Ich', category: 'pronoun' },
+      { id: '2', text: 'habe', category: 'verb' },
+      { id: '3', text: 'Wasser', category: 'noun', article: 'das' }
+    ]
+  },
+  {
+    id: 4,
+    translation: 'Eu beau ceai',
+    parts: [
+      { id: '1', text: 'Ich', category: 'pronoun' },
+      { id: '2', text: 'trinke', category: 'verb' },
+      { id: '3', text: 'Tee', category: 'noun', article: 'der' }
+    ]
+  },
+  {
+    id: 5,
+    translation: 'Eu mănânc pâine',
+    parts: [
+      { id: '1', text: 'Ich', category: 'pronoun' },
+      { id: '2', text: 'esse', category: 'verb' },
+      { id: '3', text: 'Brot', category: 'noun', article: 'das' }
+    ]
+  }
+];
