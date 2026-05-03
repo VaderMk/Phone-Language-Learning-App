@@ -1,5 +1,16 @@
-const KV_URL = import.meta.env.VITE_KV_REST_API_URL;
-const KV_TOKEN = import.meta.env.VITE_KV_REST_API_TOKEN;
+let KV_URL = import.meta.env.VITE_KV_REST_API_URL || import.meta.env.VITE_UPSTASH_REDIS_REST_URL;
+let KV_TOKEN = import.meta.env.VITE_KV_REST_API_TOKEN || import.meta.env.VITE_UPSTASH_REDIS_REST_TOKEN;
+
+const REDIS_URL = import.meta.env.VITE_REDIS_URL;
+if (REDIS_URL && !KV_URL) {
+  try {
+    const url = new URL(REDIS_URL);
+    KV_TOKEN = url.password;
+    KV_URL = `https://${url.hostname}`;
+  } catch (e) {
+    console.error('Failed to parse VITE_REDIS_URL');
+  }
+}
 
 export const saveProgressToCloud = async (syncCode: string, completedNodes: string[]) => {
   if (!KV_URL || !KV_TOKEN) {
