@@ -6,9 +6,10 @@ import { motion } from 'framer-motion';
 interface LearningPathProps {
   completedNodes: string[];
   onSelectNode: (node: LessonNode) => void;
+  onLockedClick: () => void;
 }
 
-export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSelectNode }) => {
+export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSelectNode, onLockedClick }) => {
   const getOffset = (index: number) => {
     const cycle = index % 4;
     if (cycle === 0) return 'translate-x-0';
@@ -19,25 +20,40 @@ export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSe
   };
 
   const getBgColor = (type: LessonNode['type'], isCompleted: boolean, isLocked: boolean) => {
-    if (isLocked) return 'bg-slate-700 border-slate-600 text-slate-500';
+    if (isLocked) return 'bg-slate-700 border-slate-600 text-slate-500 shadow-none';
     if (isCompleted) return 'bg-amber-400 border-amber-500 text-amber-900 shadow-[0_0_15px_rgba(251,191,36,0.5)]';
     
     switch (type) {
       case 'word': return 'bg-indigo-500 border-indigo-600 text-white shadow-[0_0_20px_rgba(99,102,241,0.6)]';
       case 'sentence': return 'bg-rose-500 border-rose-600 text-white shadow-[0_0_20px_rgba(244,63,113,0.6)]';
+      case 'reading': return 'bg-teal-500 border-teal-600 text-white shadow-[0_0_20px_rgba(20,184,166,0.6)]';
+      case 'listening': return 'bg-sky-500 border-sky-600 text-white shadow-[0_0_20px_rgba(14,165,233,0.6)]';
+      case 'speaking': return 'bg-orange-500 border-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.6)]';
+      case 'writing': return 'bg-pink-500 border-pink-600 text-white shadow-[0_0_20px_rgba(236,72,153,0.6)]';
+      case 'adventure': return 'bg-violet-500 border-violet-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.6)]';
+      case 'review': return 'bg-purple-500 border-purple-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6)]';
       case 'chest': return 'bg-emerald-500 border-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.6)]';
       case 'trophy': return 'bg-fuchsia-500 border-fuchsia-600 text-white shadow-[0_0_20px_rgba(217,70,239,0.6)]';
+      case 'placeholder': return 'bg-slate-600 border-slate-700 text-slate-400 shadow-none';
       default: return 'bg-indigo-500';
     }
   };
 
-  const getIcon = (type: LessonNode['type'], isCompleted: boolean) => {
+  const getIcon = (type: LessonNode['type'], isCompleted: boolean, isLocked: boolean) => {
+    if (isLocked) return '🔒';
     if (isCompleted) return '⭐';
     switch (type) {
       case 'word': return '📝';
       case 'sentence': return '💬';
+      case 'reading': return '📖';
+      case 'listening': return '🎧';
+      case 'speaking': return '🗣️';
+      case 'writing': return '✍️';
+      case 'adventure': return '🗺️';
+      case 'review': return '🔥';
       case 'chest': return '🎁';
       case 'trophy': return '🏆';
+      case 'placeholder': return '⏳';
       default: return '📝';
     }
   };
@@ -45,49 +61,65 @@ export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSe
   let allPreviousCompleted = true;
 
   return (
-    <div className="w-full max-w-md mx-auto py-12 px-4 flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden h-full">
-      {learningPath.map((section) => (
-        <div key={section.id} className="w-full flex flex-col items-center mb-16">
-          <div className="bg-slate-800/80 border border-slate-700 rounded-3xl p-6 w-full mb-12 shadow-xl backdrop-blur-md">
-            <h2 className="text-2xl font-extrabold text-white mb-2">{section.title}</h2>
-            <p className="text-slate-400">{section.description}</p>
-          </div>
+    <div className="w-full max-w-md mx-auto py-12 px-4 flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden h-full pb-32">
+      {learningPath.map((section) => {
+        const isSectionLocked = section.unlockRequirement ? !completedNodes.includes(section.unlockRequirement) : false;
 
-          <div className="flex flex-col items-center relative w-full space-y-8">
-            {/* The line connecting nodes */}
-            <div className="absolute top-0 bottom-0 w-4 bg-slate-800 rounded-full -z-10" />
-
-            {section.nodes.map((node, index) => {
-              const isCompleted = completedNodes.includes(node.id);
-              const isLocked = !allPreviousCompleted && !isCompleted;
-              
-              if (!isCompleted) {
-                allPreviousCompleted = false;
-              }
-
-              return (
-                <div key={node.id} className={clsx("flex flex-col items-center", getOffset(index))}>
-                  <motion.button
-                    whileTap={isLocked ? {} : { scale: 0.9 }}
-                    whileHover={isLocked ? {} : { scale: 1.05 }}
-                    onClick={() => !isLocked && onSelectNode(node)}
-                    className={clsx(
-                      "w-20 h-20 rounded-full flex items-center justify-center text-3xl border-b-8 transition-colors",
-                      getBgColor(node.type, isCompleted, isLocked),
-                      isLocked ? "cursor-not-allowed opacity-80" : "cursor-pointer"
-                    )}
-                  >
-                    {getIcon(node.type, isCompleted)}
-                  </motion.button>
-                  <span className="mt-3 font-bold text-slate-300 bg-slate-900/50 px-3 py-1 rounded-full text-sm">
-                    {node.title}
-                  </span>
+        return (
+          <div key={section.id} className={clsx("w-full flex flex-col items-center mb-16 transition-opacity duration-500", isSectionLocked ? "opacity-50" : "opacity-100")}>
+            <div className="bg-slate-800/80 border border-slate-700 rounded-3xl p-6 w-full mb-12 shadow-xl backdrop-blur-md relative overflow-hidden">
+              {isSectionLocked && (
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-10 flex items-center justify-center">
+                  <span className="text-4xl">🔒</span>
                 </div>
-              );
-            })}
+              )}
+              <h2 className="text-2xl font-extrabold text-white mb-2">{section.title}</h2>
+              <p className="text-slate-400">{section.description}</p>
+            </div>
+
+            <div className="flex flex-col items-center relative w-full space-y-8">
+              {/* The line connecting nodes */}
+              <div className="absolute top-0 bottom-0 w-4 bg-slate-800 rounded-full -z-10" />
+
+              {section.nodes.map((node, index) => {
+                const isCompleted = completedNodes.includes(node.id);
+                // A node is locked if its section is locked, or if previous nodes in unlocked sections aren't completed yet
+                const isLocked = isSectionLocked || (!allPreviousCompleted && !isCompleted);
+                
+                if (!isCompleted) {
+                  allPreviousCompleted = false;
+                }
+
+                return (
+                  <div key={node.id} className={clsx("flex flex-col items-center", getOffset(index))}>
+                    <motion.button
+                      whileTap={isLocked ? {} : { scale: 0.9 }}
+                      whileHover={isLocked ? {} : { scale: 1.05 }}
+                      onClick={() => {
+                        if (isLocked) {
+                          onLockedClick();
+                        } else if (node.type !== 'placeholder') {
+                          onSelectNode(node);
+                        }
+                      }}
+                      className={clsx(
+                        "w-20 h-20 rounded-full flex items-center justify-center text-3xl border-b-8 transition-colors",
+                        getBgColor(node.type, isCompleted, isLocked),
+                        isLocked ? "cursor-not-allowed" : "cursor-pointer"
+                      )}
+                    >
+                      {getIcon(node.type, isCompleted, isLocked)}
+                    </motion.button>
+                    <span className="mt-3 font-bold text-slate-300 bg-slate-900/50 px-3 py-1 rounded-full text-sm shadow-md">
+                      {node.title}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

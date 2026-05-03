@@ -77,6 +77,7 @@ function App() {
             <LearningPath
               completedNodes={completedNodes}
               onSelectNode={(node) => setActiveNode(node)}
+              onLockedClick={() => showOtto('Ești aproape! Termină testul de recapitulare anterior ca să mergem mai departe!', 'explaining')}
             />
           </motion.div>
         ) : (
