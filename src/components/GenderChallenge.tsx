@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type Word, type Article } from '../data/words';
 import clsx from 'clsx';
+import { speakGerman } from '../utils/tts';
 
 interface GenderChallengeProps {
   word: Word;
@@ -19,11 +20,14 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
   const handleGuess = (article: Article) => {
     if (status !== 'idle') return;
 
+    // Speak the combination the user just selected
+    speakGerman(`${article} ${word.german}`);
+
     if (article === word.article) {
       setStatus('correct');
       setTimeout(() => {
         onCorrect();
-      }, 800); // Wait for bounce animation
+      }, 1200); // Wait for audio and bounce animation
     } else {
       setStatus('wrong');
       onWrong(word);
@@ -62,7 +66,16 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
           className="w-full bg-slate-800/80 backdrop-blur-md rounded-3xl p-8 mb-8 shadow-2xl border border-slate-700/50 flex flex-col items-center text-center"
         >
           <span className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">{word.translation}</span>
-          <h2 className="text-5xl font-extrabold text-white mb-2 tracking-tight">{word.german}</h2>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <h2 className="text-5xl font-extrabold text-white tracking-tight">{word.german}</h2>
+            <button 
+              onClick={(e) => { e.stopPropagation(); speakGerman(word.german); }}
+              className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-full text-2xl transition-colors active:scale-95"
+              title="Ascultă pronunția"
+            >
+              🔊
+            </button>
+          </div>
           <span className="text-xs text-slate-500 font-medium">{word.gender}</span>
         </motion.div>
       </AnimatePresence>

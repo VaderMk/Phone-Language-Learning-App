@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type SentencePuzzle as SentencePuzzleType, type PuzzleWord } from '../data/words';
 import clsx from 'clsx';
+import { speakGerman } from '../utils/tts';
 
 interface SentencePuzzleProps {
   puzzle: SentencePuzzleType;
@@ -44,9 +45,10 @@ export const SentencePuzzle: React.FC<SentencePuzzleProps> = ({ puzzle, onCorrec
     // V2 rule: Verb must be in the 2nd position (index 1)
     if (words[1].category === 'verb') {
       setStatus('correct');
+      speakGerman(words.map(w => w.text).join(' '));
       setTimeout(() => {
         onCorrect();
-      }, 1000);
+      }, 1500); // Give enough time to hear the sentence
     } else {
       setStatus('wrong');
       onWrong();
