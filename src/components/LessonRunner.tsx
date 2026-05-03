@@ -82,15 +82,13 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
           animate={{ scale: 1 }}
           className="text-8xl mb-8"
         >
-          {node.type === 'adventure' ? '🗺️' : '🚧'}
+          🚧
         </motion.div>
         <h2 className="text-3xl font-extrabold text-white mb-4 capitalize">
           Modul {node.type}
         </h2>
         <p className="text-slate-300 mb-12">
-          {node.type === 'adventure' 
-            ? 'Aici vei interacționa cu diverse personaje într-un joc captivant!'
-            : 'Această lecție practică este în curs de dezvoltare.'}
+          Această lecție practică este în curs de dezvoltare.
         </p>
         <button
           onClick={onComplete}
