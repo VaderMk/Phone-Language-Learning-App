@@ -58,64 +58,105 @@ export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSe
     }
   };
 
+  const [expandedSectionId, setExpandedSectionId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    // Find the first active (unlocked but not fully completed) section
+    const activeSec = learningPath.find(sec => {
+      const isLocked = sec.unlockRequirement ? !completedNodes.includes(sec.unlockRequirement) : false;
+      if (isLocked) return false;
+      const allCompleted = sec.nodes.every(n => completedNodes.includes(n.id));
+      return !allCompleted;
+    });
+    
+    if (activeSec) {
+      setExpandedSectionId(activeSec.id);
+    } else {
+      setExpandedSectionId(learningPath[0].id); // default to first if all locked/done
+    }
+  }, [completedNodes]);
+
   let allPreviousCompleted = true;
 
   return (
-    <div className="w-full max-w-md mx-auto py-12 px-4 flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden h-full pb-32">
+    <div className="w-full max-w-md mx-auto py-8 px-4 flex flex-col items-center custom-scrollbar overflow-y-auto overflow-x-hidden h-full pb-32">
       {learningPath.map((section) => {
         const isSectionLocked = section.unlockRequirement ? !completedNodes.includes(section.unlockRequirement) : false;
+        const isExpanded = expandedSectionId === section.id;
+
+        const renderedNodes = section.nodes.map((node, index) => {
+          const isCompleted = completedNodes.includes(node.id);
+          // A node is locked if its section is locked, or if previous nodes in unlocked sections aren't completed yet
+          const isLocked = isSectionLocked || (!allPreviousCompleted && !isCompleted);
+          
+          if (!isCompleted) {
+            allPreviousCompleted = false;
+          }
+
+          return (
+            <div key={node.id} className={clsx("flex flex-col items-center", getOffset(index))}>
+              <motion.button
+                whileTap={isLocked ? {} : { scale: 0.9 }}
+                whileHover={isLocked ? {} : { scale: 1.05 }}
+                onClick={() => {
+                  if (isLocked) {
+                    onLockedClick();
+                  } else if (node.type !== 'placeholder') {
+                    onSelectNode(node);
+                  }
+                }}
+                className={clsx(
+                  "w-20 h-20 rounded-full flex items-center justify-center text-3xl border-b-8 transition-colors",
+                  getBgColor(node.type, isCompleted, isLocked),
+                  isLocked ? "cursor-not-allowed" : "cursor-pointer"
+                )}
+              >
+                {getIcon(node.type, isCompleted, isLocked)}
+              </motion.button>
+              <span className="mt-3 font-bold text-slate-300 bg-slate-900/50 px-3 py-1 rounded-full text-sm shadow-md">
+                {node.title}
+              </span>
+            </div>
+          );
+        });
 
         return (
-          <div key={section.id} className={clsx("w-full flex flex-col items-center mb-16 transition-opacity duration-500", isSectionLocked ? "opacity-50" : "opacity-100")}>
-            <div className="bg-slate-800/80 border border-slate-700 rounded-3xl p-6 w-full mb-12 shadow-xl backdrop-blur-md relative overflow-hidden">
+          <div key={section.id} className={clsx("w-full flex flex-col items-center mb-4 transition-opacity duration-500", isSectionLocked ? "opacity-60" : "opacity-100")}>
+            <button 
+              onClick={() => {
+                if (isSectionLocked) {
+                  onLockedClick();
+                } else {
+                  setExpandedSectionId(isExpanded ? null : section.id);
+                }
+              }}
+              className="bg-slate-800/80 border border-slate-700 hover:bg-slate-700/80 rounded-3xl p-6 w-full shadow-xl backdrop-blur-md relative overflow-hidden flex justify-between items-center text-left transition-colors active:scale-[0.98]"
+            >
               {isSectionLocked && (
-                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-10 flex items-center justify-center">
-                  <span className="text-4xl">🔒</span>
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-10 flex items-center justify-between px-6">
+                  <div>
+                    <h2 className="text-2xl font-extrabold text-slate-400 mb-1">{section.title}</h2>
+                    <p className="text-slate-500 text-sm">Termină testul anterior pentru a debloca</p>
+                  </div>
+                  <span className="text-4xl opacity-50">🔒</span>
                 </div>
               )}
-              <h2 className="text-2xl font-extrabold text-white mb-2">{section.title}</h2>
-              <p className="text-slate-400">{section.description}</p>
-            </div>
+              <div className={clsx(isSectionLocked ? "opacity-0" : "opacity-100")}>
+                <h2 className="text-2xl font-extrabold text-white mb-1">{section.title}</h2>
+                <p className="text-slate-400 text-sm">{section.description}</p>
+              </div>
+              <div className={clsx("text-2xl transition-transform duration-300", isExpanded ? "rotate-180" : "rotate-0", isSectionLocked ? "opacity-0" : "opacity-50")}>
+                🔽
+              </div>
+            </button>
 
-            <div className="flex flex-col items-center relative w-full space-y-8">
-              {/* The line connecting nodes */}
-              <div className="absolute top-0 bottom-0 w-4 bg-slate-800 rounded-full -z-10" />
-
-              {section.nodes.map((node, index) => {
-                const isCompleted = completedNodes.includes(node.id);
-                // A node is locked if its section is locked, or if previous nodes in unlocked sections aren't completed yet
-                const isLocked = isSectionLocked || (!allPreviousCompleted && !isCompleted);
-                
-                if (!isCompleted) {
-                  allPreviousCompleted = false;
-                }
-
-                return (
-                  <div key={node.id} className={clsx("flex flex-col items-center", getOffset(index))}>
-                    <motion.button
-                      whileTap={isLocked ? {} : { scale: 0.9 }}
-                      whileHover={isLocked ? {} : { scale: 1.05 }}
-                      onClick={() => {
-                        if (isLocked) {
-                          onLockedClick();
-                        } else if (node.type !== 'placeholder') {
-                          onSelectNode(node);
-                        }
-                      }}
-                      className={clsx(
-                        "w-20 h-20 rounded-full flex items-center justify-center text-3xl border-b-8 transition-colors",
-                        getBgColor(node.type, isCompleted, isLocked),
-                        isLocked ? "cursor-not-allowed" : "cursor-pointer"
-                      )}
-                    >
-                      {getIcon(node.type, isCompleted, isLocked)}
-                    </motion.button>
-                    <span className="mt-3 font-bold text-slate-300 bg-slate-900/50 px-3 py-1 rounded-full text-sm shadow-md">
-                      {node.title}
-                    </span>
-                  </div>
-                );
-              })}
+            {/* Accordion Content */}
+            <div className={clsx("w-full overflow-hidden transition-all duration-500 ease-in-out", isExpanded ? "max-h-[2000px] opacity-100 mt-8 mb-8" : "max-h-0 opacity-0 mt-0 mb-0")}>
+              <div className="flex flex-col items-center relative w-full space-y-8 py-4">
+                {/* The line connecting nodes */}
+                <div className="absolute top-0 bottom-0 w-4 bg-slate-800 rounded-full -z-10" />
+                {renderedNodes}
+              </div>
             </div>
           </div>
         );
