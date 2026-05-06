@@ -49,18 +49,14 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
 
   // If it's a chest or trophy, just show a claim screen or Vision Quest
   if (node.type === 'chest' || node.type === 'trophy') {
-    // Determine target word for the vision quest
-    let objWord = 'Buch';
-    let objTrans = 'carte';
-    if (node.type === 'trophy') {
-      objWord = 'Tasse';
-      objTrans = 'ceașcă';
-    }
+    const genders = ['Masculin (der)', 'Feminin (die)', 'Neutru (das)'];
+    const targetGender = genders[Math.floor(Math.random() * genders.length)];
+    const isTrophy = node.type === 'trophy';
 
     return (
       <VisionQuest 
-        objectiveWord={objWord}
-        objectiveTranslation={objTrans}
+        objectiveWord={targetGender}
+        objectiveTranslation={`obiect ${isTrophy ? 'pentru trofeu' : 'în viața reală'} care să fie de genul`}
         onComplete={onComplete}
         onBack={onBack}
         showOtto={showOtto}
@@ -116,6 +112,10 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
 
   const currentItem = dynamicItems[currentIndex];
 
+  const unitMatch = node.id.match(/^u(\d+)_/);
+  const unitNum = unitMatch ? parseInt(unitMatch[1], 10) : 1;
+  const isSpeechMandatory = unitNum >= 6;
+
   const handleCorrect = () => {
     if (currentIndex + 1 >= dynamicItems.length) {
       onComplete();
@@ -163,6 +163,7 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
             word={currentItem}
             onCorrect={handleCorrect}
             onWrong={() => handleWrongWord(currentItem)}
+            isSpeechMandatory={isSpeechMandatory}
           />
         ) : (
           <SentencePuzzle

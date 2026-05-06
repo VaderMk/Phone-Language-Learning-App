@@ -284,7 +284,7 @@ function App() {
 
       {/* Chat Modal */}
       <AnimatePresence>
-        {isChatOpen && <OttoChat onClose={() => setIsChatOpen(false)} />}
+        {isChatOpen && <OttoChat onClose={() => setIsChatOpen(false)} userInterest={userInterest} completedNodes={completedNodes} />}
       </AnimatePresence>
     </div>
   );

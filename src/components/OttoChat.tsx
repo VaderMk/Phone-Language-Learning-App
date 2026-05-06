@@ -9,18 +9,38 @@ interface Message {
   text: string;
 }
 
-export const OttoChat: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+export const OttoChat: React.FC<{ onClose: () => void, userInterest?: string, completedNodes?: string[] }> = ({ onClose, userInterest = '', completedNodes = [] }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize with a scenario
+  // Initialize with a scenario based on progress and interests
   useEffect(() => {
+    const lastNode = completedNodes[completedNodes.length - 1] || '';
+    const unitMatch = lastNode.match(/^u(\d+)_/);
+    const unit = unitMatch ? parseInt(unitMatch[1], 10) : 1;
+    
+    let scenario = 'Guten Tag! Eu sunt Otto, partenerul tău de conversație.';
+    let prompt = 'Hai să exersăm! Sunt ospătar la un restaurant. Ce dorești să comanzi?';
+
+    if (unit >= 19) {
+      scenario = `Seid gegrüßt! Ai ajuns la nivelul C1/C2 (Unitatea ${unit}).`;
+      prompt = `Să ridicăm nivelul discuției. Cum vezi tu impactul tehnologiei asupra ${userInterest ? userInterest : 'societății moderne'} din perspectivă etică și filosofică? Folosește Konjunktiv I pentru a relata idei!`;
+    } else if (unit >= 11) {
+      scenario = `Guten Tag! Ai ajuns la nivelul B1/B2 (Unitatea ${unit}).`;
+      prompt = `Hai să discutăm mai detaliat. Care este părerea ta despre ${userInterest ? userInterest : 'munca de la distanță'}? Încearcă să folosești subordonate și propoziții relative.`;
+    } else if (unit >= 7) {
+      scenario = `Guten Tag! Văd că ai ajuns la Unitatea ${unit} (Perfekt).`;
+      prompt = `Hai să folosim trecutul! Ce ai făcut în weekend? ${userInterest ? `Ai avut timp pentru ${userInterest}?` : 'Te-ai relaxat?'}`;
+    } else if (userInterest) {
+      prompt = `Hai să exersăm! Văd că îți place ${userInterest}. Cum se spune asta în germană?`;
+    }
+
     setMessages([
-      { id: '1', sender: 'otto', text: 'Guten Tag! Eu sunt Otto, partenerul tău de conversație.' },
-      { id: '2', sender: 'otto', text: 'Hai să exersăm! Sunt ospătar la un restaurant. Ce dorești să comanzi?' }
+      { id: '1', sender: 'otto', text: scenario },
+      { id: '2', sender: 'otto', text: prompt }
     ]);
-  }, []);
+  }, [completedNodes, userInterest]);
 
   // Auto-scroll
   useEffect(() => {
@@ -44,10 +64,14 @@ export const OttoChat: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         reply = 'Perfect! Comanda ta a fost preluată. 🍔 E foarte bine că ai folosit "bitte".';
         hapticSuccess();
         playSuccessSound();
+      } else if (lower.includes('habe') || lower.includes('bin') || lower.includes('ge')) {
+        reply = 'Excelent! Ai folosit Perfectul Compus (Perfekt) corect. Continuă!';
+        hapticSuccess();
+        playSuccessSound();
       } else if (lower.includes('wasser') || lower.includes('kaffee')) {
         reply = 'Am înțeles comanda. Dar nu uita să adaugi "bitte" (vă rog) la final pentru a fi politicos!';
       } else {
-        reply = 'Hmm, nu sunt sigur că am înțeles. Încearcă ceva simplu, cum ar fi "Wasser, bitte" (Apă, vă rog).';
+        reply = 'Hmm, nu sunt sigur că am înțeles perfect. Încearcă să folosești cuvinte simple din unitățile trecute sau aplică regulile gramaticale cerute!';
       }
       
       setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'otto', text: reply }]);

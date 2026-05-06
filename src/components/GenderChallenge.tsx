@@ -12,12 +12,14 @@ interface GenderChallengeProps {
   word: Word;
   onCorrect: () => void;
   onWrong: (word: Word) => void;
+  isSpeechMandatory?: boolean;
 }
 
-export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrect, onWrong }) => {
+export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrect, onWrong, isSpeechMandatory = false }) => {
   const [status, setStatus] = useState<'idle' | 'wrong' | 'correct'>('idle');
 
-  const [canTalk, setCanTalk] = useState(true);
+  const [canTalkState, setCanTalk] = useState(true);
+  const canTalk = isSpeechMandatory ? true : canTalkState;
 
   useEffect(() => {
     setStatus('idle');
@@ -135,13 +137,15 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
             </div>
           )}
 
-          <button 
-            onClick={() => setCanTalk(!canTalk)}
-            className="absolute top-4 right-4 text-xs text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1"
-          >
-            <span className="text-lg">{canTalk ? '🤫' : '🗣️'}</span>
-            <span>{canTalk ? 'Nu pot vorbi' : 'Pot vorbi'}</span>
-          </button>
+          {!isSpeechMandatory && (
+            <button 
+              onClick={() => setCanTalk(!canTalk)}
+              className="absolute top-4 right-4 text-xs text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1"
+            >
+              <span className="text-lg">{canTalk ? '🤫' : '🗣️'}</span>
+              <span>{canTalk ? 'Nu pot vorbi' : 'Pot vorbi'}</span>
+            </button>
+          )}
         </motion.div>
       </AnimatePresence>
 
