@@ -28,7 +28,6 @@ function App() {
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [ottoSkin, setOttoSkin] = useState<'default' | 'golden' | 'party'>('default');
   const [userInterest, setUserInterest] = useState(() => localStorage.getItem('userInterest') || '');
   const [importCode, setImportCode] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -45,7 +44,7 @@ function App() {
   }, [completedNodes, syncCode]);
 
   const showOtto = (message: string, type: 'neutral' | 'happy' | 'sad' | 'explaining' | 'thinking' = 'explaining', duration = 3000) => {
-    setOttoState({ message, type, isVisible: true, skin: ottoSkin });
+    setOttoState({ message, type, isVisible: true, skin: 'default' });
     setTimeout(() => {
       setOttoState(prev => ({ ...prev, isVisible: false }));
     }, duration);
@@ -90,22 +89,23 @@ function App() {
   };
 
   return (
-    <div className="h-screen w-full bg-slate-900 flex flex-col items-center relative overflow-hidden font-sans">
-      <OttoCoach state={ottoState} />
+    <div className="h-screen w-full bg-slate-950 flex justify-center items-center relative overflow-hidden font-sans">
+      <div className="w-full max-w-md h-full bg-slate-900 relative flex flex-col shadow-2xl overflow-hidden border-x border-slate-800">
+        <OttoCoach state={ottoState} />
 
-      {/* Decorative ambient lighting */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
+        {/* Decorative ambient lighting */}
+        <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-rose-500/10 rounded-full blur-[80px] pointer-events-none" />
 
-      <AnimatePresence mode="wait">
-        {!activeNode ? (
-          <motion.div
-            key="path-view"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            className="w-full h-full flex flex-col"
-          >
+        <AnimatePresence mode="wait">
+          {!activeNode ? (
+            <motion.div
+              key="path-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="w-full h-full flex flex-col"
+            >
             {/* Header */}
             <div className="w-full bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 p-6 flex justify-between items-center z-10 sticky top-0 shadow-sm">
               <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ function App() {
 
             <div className="flex-1 overflow-y-auto w-full pb-20 relative scroll-smooth hide-scrollbar">
             
-              <DashboardWidgets onSkinUnlock={(skin) => setOttoSkin(skin)} />
+              <DashboardWidgets />
 
               {userInterest && (
                 <div className="mx-4 mt-2 mb-4 p-4 rounded-xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 text-center">
@@ -286,6 +286,7 @@ function App() {
       <AnimatePresence>
         {isChatOpen && <OttoChat onClose={() => setIsChatOpen(false)} userInterest={userInterest} completedNodes={completedNodes} />}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

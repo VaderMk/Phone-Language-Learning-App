@@ -1,42 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { hapticSuccess, hapticTap } from '../utils/haptics';
 import { playSuccessSound } from '../utils/audio';
 
-export const DashboardWidgets: React.FC<{
-  onSkinUnlock: (skin: 'golden' | 'party') => void;
-}> = ({ onSkinUnlock }) => {
-  // Shared Quest Logic
-  const [questProgress, setQuestProgress] = useState(65); // Simulated starting progress
-  const [questCompleted, setQuestCompleted] = useState(false);
-  const [claimed, setClaimed] = useState(false);
-
+export const DashboardWidgets: React.FC = () => {
   // Daily Flash Logic
   const [flashOpen, setFlashOpen] = useState(false);
   const [flashAnswered, setFlashAnswered] = useState(false);
-
-  useEffect(() => {
-    // Simulate community progress
-    const interval = setInterval(() => {
-      setQuestProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setQuestCompleted(true);
-          return 100;
-        }
-        return prev + Math.floor(Math.random() * 5); // Jump 0-4%
-      });
-    }, 4000); // Update every 4 seconds for MVP simulation
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleClaim = () => {
-    hapticSuccess();
-    playSuccessSound();
-    setClaimed(true);
-    onSkinUnlock('golden');
-  };
 
   const handleFlashAnswer = (isCorrect: boolean) => {
     if (isCorrect) {
@@ -51,48 +21,7 @@ export const DashboardWidgets: React.FC<{
 
   return (
     <div className="w-full px-4 py-2 space-y-3">
-      {/* Shared Quest Widget */}
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 border border-slate-700/50 shadow-lg">
-        <div className="flex justify-between items-end mb-2">
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-1">
-              <span>🌍</span> Misiune Comunitară
-            </h3>
-            <p className="text-xs text-slate-400">10,000 lecții de germană finalizate</p>
-          </div>
-          <div className="text-xs font-bold text-indigo-400">{Math.min(questProgress, 100)}%</div>
-        </div>
-        
-        <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden relative">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 relative"
-            initial={{ width: 0 }}
-            animate={{ width: `${Math.min(questProgress, 100)}%` }}
-            transition={{ ease: "easeOut", duration: 0.5 }}
-          />
-          {questCompleted && !claimed && (
-            <motion.div 
-              className="absolute inset-0 bg-white/20"
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ repeat: Infinity, duration: 1 }}
-            />
-          )}
-        </div>
 
-        <AnimatePresence>
-          {questCompleted && !claimed && (
-            <motion.button
-              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-              animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
-              exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              onClick={handleClaim}
-              className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold rounded-xl text-sm transition-colors shadow-[0_0_15px_rgba(251,191,36,0.4)]"
-            >
-              Deblochează Otto Auriu! ✨
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
 
       {/* Daily Flash Widget */}
       {!flashOpen && !flashAnswered && (
