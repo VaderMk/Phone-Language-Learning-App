@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type Word, type Article } from '../data/words';
 import clsx from 'clsx';
 import { speakGerman } from '../utils/tts';
+import { recordCorrect, recordError } from '../utils/srs';
+import { hapticSuccess, hapticError, hapticTap } from '../utils/haptics';
+import { SpeechButton } from './SpeechButton';
+import { type SpeechResult } from '../utils/speech';
 
 interface GenderChallengeProps {
   word: Word;
@@ -13,6 +17,8 @@ interface GenderChallengeProps {
 export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrect, onWrong }) => {
   const [status, setStatus] = useState<'idle' | 'wrong' | 'correct'>('idle');
 
+  const [canTalk, setCanTalk] = useState(true);
+
   useEffect(() => {
     setStatus('idle');
   }, [word]);
@@ -20,22 +26,60 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
   const handleGuess = (article: Article) => {
     if (status !== 'idle') return;
 
+    hapticTap();
     // Speak the combination the user just selected
-    speakGerman(`${article} ${word.german}`);
+    if (canTalk) {
+      speakGerman(`${article} ${word.german}`);
+    }
 
     if (article === word.article) {
       setStatus('correct');
+      recordCorrect(word.id, word.german);
+      hapticSuccess();
       setTimeout(() => {
         onCorrect();
       }, 1200); // Wait for audio and bounce animation
     } else {
       setStatus('wrong');
+      recordError(word.id, word.german);
+      hapticError();
       onWrong(word);
       setTimeout(() => {
         setStatus('idle');
       }, 600); // Wait for shake animation
     }
   };
+
+  const handleSpeechResult = useCallback((result: SpeechResult) => {
+    if (status !== 'idle' || !canTalk) return;
+    if (!result.transcript) return;
+
+    const spoken = result.transcript.toLowerCase().trim();
+
+    // Check if user said the correct article + word combo
+    if (result.isMatch) {
+      setStatus('correct');
+      recordCorrect(word.id, word.german);
+      hapticSuccess();
+      speakGerman(`${word.article} ${word.german}`);
+      setTimeout(() => onCorrect(), 1200);
+      return;
+    }
+
+    // Check if user said just the article
+    const articles: Article[] = ['der', 'die', 'das'];
+    for (const art of articles) {
+      if (spoken.startsWith(art)) {
+        handleGuess(art);
+        return;
+      }
+    }
+
+    // No recognizable article found
+    hapticError();
+    recordError(word.id, word.german);
+    onWrong(word);
+  }, [status, word, onCorrect, onWrong, canTalk]);
 
   const variants = {
     idle: { x: 0, scale: 1 },
@@ -63,20 +107,41 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.3 }}
-          className="w-full bg-slate-800/80 backdrop-blur-md rounded-3xl p-8 mb-8 shadow-2xl border border-slate-700/50 flex flex-col items-center text-center"
+          className="w-full bg-slate-800/80 backdrop-blur-md rounded-3xl p-8 mb-8 shadow-2xl border border-slate-700/50 flex flex-col items-center text-center relative"
         >
           <span className="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">{word.translation}</span>
           <div className="flex items-center justify-center gap-3 mb-2">
             <h2 className="text-5xl font-extrabold text-white tracking-tight">{word.german}</h2>
-            <button 
-              onClick={(e) => { e.stopPropagation(); speakGerman(word.german); }}
-              className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-full text-2xl transition-colors active:scale-95"
-              title="Ascultă pronunția"
-            >
-              🔊
-            </button>
+            {canTalk && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); speakGerman(word.german); }}
+                className="p-2 bg-slate-700/50 hover:bg-slate-600 rounded-full text-2xl transition-colors active:scale-95"
+                title="Ascultă pronunția"
+              >
+                🔊
+              </button>
+            )}
           </div>
           <span className="text-xs text-slate-500 font-medium">{word.gender}</span>
+
+          {/* Speech recognition mic — say "der/die/das Wort" */}
+          {canTalk && (
+            <div className="mt-5">
+              <SpeechButton
+                expectedText={`${word.article} ${word.german}`}
+                onResult={handleSpeechResult}
+                compact
+              />
+            </div>
+          )}
+
+          <button 
+            onClick={() => setCanTalk(!canTalk)}
+            className="absolute top-4 right-4 text-xs text-slate-500 hover:text-slate-300 flex flex-col items-center gap-1"
+          >
+            <span className="text-lg">{canTalk ? '🤫' : '🗣️'}</span>
+            <span>{canTalk ? 'Nu pot vorbi' : 'Pot vorbi'}</span>
+          </button>
         </motion.div>
       </AnimatePresence>
 

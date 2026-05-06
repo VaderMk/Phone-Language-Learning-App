@@ -3,6 +3,7 @@ import { type LessonNode } from './data/path';
 import { LearningPath } from './components/LearningPath';
 import { LessonRunner } from './components/LessonRunner';
 import { OttoCoach, type OttoState } from './components/OttoCoach';
+import { OttoChat } from './components/OttoChat';
 import { AnimatePresence, motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { generateSyncCode, loadProgressFromCloud, saveProgressToCloud } from './utils/sync';
@@ -24,6 +25,7 @@ function App() {
   });
 
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [importCode, setImportCode] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [ottoState, setOttoState] = useState<OttoState>({ message: '', type: 'neutral', isVisible: false });
@@ -125,6 +127,15 @@ function App() {
               onSelectNode={(node) => setActiveNode(node)}
               onLockedClick={() => showOtto('Ești aproape! Termină testul de recapitulare anterior ca să mergem mai departe!', 'explaining')}
             />
+
+            {/* Floating Chat Button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsChatOpen(true)}
+              className="fixed bottom-6 right-6 w-16 h-16 bg-indigo-600 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)] flex items-center justify-center text-3xl z-30 border-2 border-indigo-400"
+            >
+              💬
+            </motion.button>
           </motion.div>
         ) : (
           <motion.div
@@ -202,6 +213,11 @@ function App() {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Chat Modal */}
+      <AnimatePresence>
+        {isChatOpen && <OttoChat onClose={() => setIsChatOpen(false)} />}
       </AnimatePresence>
     </div>
   );

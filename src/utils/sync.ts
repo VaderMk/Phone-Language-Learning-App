@@ -8,10 +8,13 @@ if (REDIS_URL && !KV_URL) {
     KV_TOKEN = url.password;
     KV_URL = `https://${url.hostname}`;
   } catch (e) {
-    console.error('Failed to parse VITE_REDIS_URL');
+    console.error('Failed to parse VITE_REDIS_URL:', String(REDIS_URL).substring(0, 5) + '...');
   }
 }
 
+if (!KV_URL || !KV_TOKEN) {
+  console.error("DEBUG INFO: Missing KV_URL or KV_TOKEN. KV_URL:", KV_URL, "KV_TOKEN is set:", !!KV_TOKEN);
+}
 export const saveProgressToCloud = async (syncCode: string, completedNodes: string[]) => {
   if (!KV_URL || !KV_TOKEN) {
     console.warn('Vercel KV credentials not found in environment.');

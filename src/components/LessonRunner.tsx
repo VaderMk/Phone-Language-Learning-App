@@ -5,7 +5,9 @@ import { GenderChallenge } from './GenderChallenge';
 import { SentencePuzzle } from './SentencePuzzle';
 import { ProgressTracker } from './ProgressTracker';
 import { AdventureMode } from './AdventureMode';
+import { VisionQuest } from './VisionQuest';
 import { motion } from 'framer-motion';
+import { playSuccessSound, playErrorSound } from '../utils/audio';
 
 interface LessonRunnerProps {
   node: LessonNode;
@@ -20,40 +22,49 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
 
   useEffect(() => {
     if (node.type === 'review') {
-      // Generate dynamic review items
-      const shuffledWords = [...words].sort(() => Math.random() - 0.5).slice(0, 5);
-      const shuffledPuzzles = [...puzzles].sort(() => Math.random() - 0.5).slice(0, 2);
-      const mixed = [...shuffledWords, ...shuffledPuzzles].sort(() => Math.random() - 0.5);
-      setDynamicItems(mixed);
+      // Generate dynamic review items based on SRS
+      import('../utils/srs').then(({ getWeakWords }) => {
+        const weakEntries = getWeakWords();
+        // Map weak entries back to Word objects
+        const weakWords = weakEntries
+          .map(entry => words.find(w => w.id === entry.wordId))
+          .filter((w): w is Word => w !== undefined);
+        
+        // If we don't have enough weak words, fill with random ones
+        const needed = Math.max(0, 5 - weakWords.length);
+        const randomWords = [...words]
+          .filter(w => !weakWords.find(ww => ww.id === w.id))
+          .sort(() => Math.random() - 0.5)
+          .slice(0, needed);
+          
+        const selectedWords = [...weakWords, ...randomWords].slice(0, 5);
+        const shuffledPuzzles = [...puzzles].sort(() => Math.random() - 0.5).slice(0, 2);
+        const mixed = [...selectedWords, ...shuffledPuzzles].sort(() => Math.random() - 0.5);
+        setDynamicItems(mixed);
+      });
     } else {
       setDynamicItems(node.items);
     }
   }, [node]);
 
-  // If it's a chest or trophy, just show a claim screen
+  // If it's a chest or trophy, just show a claim screen or Vision Quest
   if (node.type === 'chest' || node.type === 'trophy') {
+    // Determine target word for the vision quest
+    let objWord = 'Buch';
+    let objTrans = 'carte';
+    if (node.type === 'trophy') {
+      objWord = 'Tasse';
+      objTrans = 'ceașcă';
+    }
+
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full max-w-md p-6 text-center">
-        <motion.div 
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="text-8xl mb-8 drop-shadow-[0_0_30px_rgba(251,191,36,0.6)]"
-        >
-          {node.type === 'chest' ? '🎁' : '🏆'}
-        </motion.div>
-        <h2 className="text-3xl font-extrabold text-white mb-4">
-          {node.type === 'chest' ? 'Ai găsit un Cufăr!' : 'Ai obținut Trofeul!'}
-        </h2>
-        <p className="text-slate-300 mb-12">
-          Aceasta este o recompensă opțională pentru determinarea ta! Nu implică presiune sau penalizări.
-        </p>
-        <button
-          onClick={onComplete}
-          className="w-full py-4 rounded-2xl text-lg font-bold bg-amber-500 hover:bg-amber-400 text-amber-950 border-b-4 border-amber-600 active:translate-y-1 active:border-b-0 transition-all shadow-xl"
-        >
-          Revendică
-        </button>
-      </div>
+      <VisionQuest 
+        objectiveWord={objWord}
+        objectiveTranslation={objTrans}
+        onComplete={onComplete}
+        onBack={onBack}
+        showOtto={showOtto}
+      />
     );
   }
 
@@ -113,14 +124,17 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
       if ((currentIndex + 1) % 3 === 0) {
         showOtto('Te descurci excelent! Continuă așa!', 'happy', 2500);
       }
+      playSuccessSound();
     }
   };
 
   const handleWrongWord = (word: Word) => {
+    playErrorSound();
     showOtto(`Fără grabă! Cuvântul "${word.german}" este de genul "${word.article}". Mai încearcă o dată.`, 'explaining');
   };
 
   const handleWrongPuzzle = () => {
+    playErrorSound();
     showOtto('Aproape! Amintește-ți că verbul trebuie să fie pe locul 2 în propoziție.', 'thinking');
   };
 
