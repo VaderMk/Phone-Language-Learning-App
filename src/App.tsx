@@ -4,6 +4,7 @@ import { LearningPath } from './components/LearningPath';
 import { LessonRunner } from './components/LessonRunner';
 import { OttoCoach, type OttoState } from './components/OttoCoach';
 import { OttoChat } from './components/OttoChat';
+import { DashboardWidgets } from './components/DashboardWidgets';
 import { AnimatePresence, motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { generateSyncCode, loadProgressFromCloud, saveProgressToCloud } from './utils/sync';
@@ -25,7 +26,10 @@ function App() {
   });
 
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [ottoSkin, setOttoSkin] = useState<'default' | 'golden' | 'party'>('default');
+  const [userInterest, setUserInterest] = useState(() => localStorage.getItem('userInterest') || '');
   const [importCode, setImportCode] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [ottoState, setOttoState] = useState<OttoState>({ message: '', type: 'neutral', isVisible: false });
@@ -40,8 +44,8 @@ function App() {
     }
   }, [completedNodes, syncCode]);
 
-  const showOtto = (message: string, type: OttoState['type'] = 'explaining', duration = 4000) => {
-    setOttoState({ message, type, isVisible: true });
+  const showOtto = (message: string, type: 'neutral' | 'happy' | 'sad' | 'explaining' | 'thinking' = 'explaining', duration = 3000) => {
+    setOttoState({ message, type, isVisible: true, skin: ottoSkin });
     setTimeout(() => {
       setOttoState(prev => ({ ...prev, isVisible: false }));
     }, duration);
@@ -110,6 +114,12 @@ function App() {
               </div>
               <div className="flex items-center gap-3">
                 <button 
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-white"
+                >
+                  👤
+                </button>
+                <button 
                   onClick={() => setIsSyncModalOpen(true)}
                   className="bg-slate-700/50 hover:bg-slate-600 transition p-2 rounded-full text-xl"
                   title="Cloud Sync"
@@ -122,11 +132,23 @@ function App() {
               </div>
             </div>
 
-            <LearningPath
-              completedNodes={completedNodes}
-              onSelectNode={(node) => setActiveNode(node)}
-              onLockedClick={() => showOtto('Ești aproape! Termină testul de recapitulare anterior ca să mergem mai departe!', 'explaining')}
-            />
+            <div className="flex-1 overflow-y-auto w-full pb-20 relative scroll-smooth hide-scrollbar">
+            
+              <DashboardWidgets onSkinUnlock={(skin) => setOttoSkin(skin)} />
+
+              {userInterest && (
+                <div className="mx-4 mt-2 mb-4 p-4 rounded-xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 text-center">
+                  <p className="text-xs text-indigo-300 font-bold uppercase tracking-wider mb-1">Calea Personalizată</p>
+                  <p className="text-sm text-slate-200">Următoarele lecții vor include termeni despre: <span className="font-bold text-white">{userInterest}</span></p>
+                </div>
+              )}
+
+              <LearningPath
+                completedNodes={completedNodes}
+                onSelectNode={(node) => setActiveNode(node)}
+                onLockedClick={() => showOtto('Ești aproape! Termină testul de recapitulare anterior ca să mergem mai departe!', 'explaining')}
+              />
+            </div>
 
             {/* Floating Chat Button */}
             <motion.button
@@ -158,6 +180,51 @@ function App() {
 
       {/* Sync Modal */}
       <AnimatePresence>
+        {isProfileModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-slate-800 rounded-3xl p-6 w-full max-w-sm border border-slate-700 shadow-2xl"
+            >
+              <h2 className="text-xl font-bold text-white mb-4">Profil & Interese</h2>
+              <p className="text-sm text-slate-400 mb-6">
+                Spune-ne ce te pasionează (ex: Gătit, Mașini, Călătorii), iar Gemini va personaliza lecțiile tale viitoare!
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Interes Principal</label>
+                  <input
+                    type="text"
+                    value={userInterest}
+                    onChange={(e) => {
+                      setUserInterest(e.target.value);
+                      localStorage.setItem('userInterest', e.target.value);
+                    }}
+                    placeholder="ex: Gătit..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setIsProfileModalOpen(false)}
+                  className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-lg shadow-indigo-600/20"
+                >
+                  Salvează
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
         {isSyncModalOpen && (
           <motion.div 
             initial={{ opacity: 0 }}

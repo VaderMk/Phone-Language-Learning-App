@@ -5,6 +5,7 @@ export interface OttoState {
   message: string;
   type: 'neutral' | 'happy' | 'sad' | 'explaining' | 'thinking';
   isVisible: boolean;
+  skin?: 'default' | 'golden' | 'party';
 }
 
 interface OttoProps {
@@ -40,9 +41,12 @@ export const OttoCoach: React.FC<OttoProps> = ({ state }) => {
             <motion.div 
               animate={state.type === 'happy' ? { y: [0, -10, 0] } : {}}
               transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-4xl shadow-lg border-4 border-indigo-300 overflow-hidden"
+              className={`w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-lg border-4 overflow-hidden relative
+                ${state.skin === 'golden' ? 'bg-amber-100 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.6)]' : 'bg-white border-indigo-300'}
+              `}
             >
               {getAvatar()}
+              {state.skin === 'party' && <div className="absolute -top-1 right-0 text-xl">🎩</div>}
             </motion.div>
           </div>
         </motion.div>
