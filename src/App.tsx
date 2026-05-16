@@ -97,7 +97,7 @@ function App() {
         <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-rose-500/10 rounded-full blur-[80px] pointer-events-none" />
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {!activeNode ? (
             <motion.div
               key="path-view"
@@ -165,7 +165,6 @@ function App() {
             key="lesson-view"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="w-full h-full flex flex-col bg-slate-900 z-20"
           >
