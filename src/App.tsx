@@ -101,9 +101,10 @@ function App() {
           {!activeNode ? (
             <motion.div
               key="path-view"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               className="w-full h-full flex flex-col"
             >
             {/* Header */}
@@ -162,10 +163,10 @@ function App() {
         ) : (
           <motion.div
             key="lesson-view"
-            initial={{ opacity: 0, x: 100 }}
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
             className="w-full h-full flex flex-col bg-slate-900 z-20"
           >
             <LessonRunner
