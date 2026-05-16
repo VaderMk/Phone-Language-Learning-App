@@ -40,7 +40,7 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
       hapticSuccess();
       setTimeout(() => {
         onCorrect();
-      }, 1200); // Wait for audio and bounce animation
+      }, 600); // Wait for audio and bounce animation
     } else {
       setStatus('wrong');
       recordError(word.id, word.german);
@@ -64,7 +64,7 @@ export const GenderChallenge: React.FC<GenderChallengeProps> = ({ word, onCorrec
       recordCorrect(word.id, word.german);
       hapticSuccess();
       speakGerman(`${word.article} ${word.german}`);
-      setTimeout(() => onCorrect(), 1200);
+      setTimeout(() => onCorrect(), 600);
       return;
     }
 

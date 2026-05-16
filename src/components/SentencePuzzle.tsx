@@ -48,7 +48,7 @@ export const SentencePuzzle: React.FC<SentencePuzzleProps> = ({ puzzle, onCorrec
       speakGerman(words.map(w => w.text).join(' '));
       setTimeout(() => {
         onCorrect();
-      }, 1500); // Give enough time to hear the sentence
+      }, 800); // Give enough time to hear the sentence
     } else {
       setStatus('wrong');
       onWrong();

@@ -19,6 +19,7 @@ interface LessonRunnerProps {
 export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, onBack, showOtto }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dynamicItems, setDynamicItems] = useState<(Word | SentencePuzzleType)[]>(node.items);
+  const [isLessonFinished, setIsLessonFinished] = useState(false);
 
   useEffect(() => {
     if (node.type === 'review') {
@@ -118,7 +119,9 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
 
   const handleCorrect = () => {
     if (currentIndex + 1 >= dynamicItems.length) {
-      onComplete();
+      setIsLessonFinished(true);
+      playSuccessSound();
+      showOtto('Lecție completă! Ai reținut foarte bine noțiunile.', 'happy', 4000);
     } else {
       setCurrentIndex((prev) => prev + 1);
       if ((currentIndex + 1) % 3 === 0) {
@@ -142,6 +145,24 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
   const isWord = (item: Word | SentencePuzzleType): item is Word => {
     return 'german' in item;
   };
+
+  if (isLessonFinished) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center h-full w-full max-w-md p-6 text-center z-10 mx-auto">
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-8xl mb-8">
+          🎉
+        </motion.div>
+        <h2 className="text-3xl font-extrabold text-white mb-4">Lecție Completă!</h2>
+        <p className="text-slate-300 mb-12">Excelent! Ai parcurs toate exercițiile din această sesiune.</p>
+        <button
+          onClick={onComplete}
+          className="w-full py-4 rounded-2xl text-lg font-bold bg-indigo-600 hover:bg-indigo-500 text-white border-b-4 border-indigo-700 active:translate-y-1 active:border-b-0 transition-all shadow-xl"
+        >
+          Continuă
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col w-full h-full max-w-md mx-auto pt-6 px-4 pb-8">
