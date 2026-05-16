@@ -6,7 +6,6 @@ import { OttoCoach, type OttoState } from './components/OttoCoach';
 import { OttoChat } from './components/OttoChat';
 import { DashboardWidgets } from './components/DashboardWidgets';
 import { AnimatePresence, motion } from 'framer-motion';
-import confetti from 'canvas-confetti';
 import { generateSyncCode, loadProgressFromCloud, saveProgressToCloud } from './utils/sync';
 
 function App() {
@@ -50,14 +49,7 @@ function App() {
     }, duration);
   };
 
-  const triggerConfetti = () => {
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#818cf8', '#34d399', '#fbbf24', '#f87171']
-    });
-  };
+
 
   const handleLessonComplete = () => {
     if (activeNode && !completedNodes.includes(activeNode.id)) {
