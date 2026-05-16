@@ -8,6 +8,7 @@ import { AdventureMode } from './AdventureMode';
 import { VisionQuest } from './VisionQuest';
 import { motion } from 'framer-motion';
 import { playSuccessSound, playErrorSound } from '../utils/audio';
+import confetti from 'canvas-confetti';
 
 interface LessonRunnerProps {
   node: LessonNode;
@@ -122,6 +123,12 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
       setIsLessonFinished(true);
       playSuccessSound();
       showOtto('Lecție completă! Ai reținut foarte bine noțiunile.', 'happy', 4000);
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#818cf8', '#34d399', '#fbbf24', '#f87171']
+      });
     } else {
       setCurrentIndex((prev) => prev + 1);
       if ((currentIndex + 1) % 3 === 0) {

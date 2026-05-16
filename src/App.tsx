@@ -64,8 +64,6 @@ function App() {
       setCompletedNodes(prev => [...prev, activeNode.id]);
     }
     
-    triggerConfetti();
-    showOtto('Ai terminat cu succes! Fără grabă, progresul tău e minunat.', 'happy', 4000);
     setActiveNode(null); // Return to map
   };
 
