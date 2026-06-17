@@ -1,5 +1,7 @@
 import { puzzles, basicWords, animalWords, foodWords } from './words';
 import { type Word, type SentencePuzzle } from './words';
+import { lessonWords } from './generated/lessonWords';
+import type { LessonWord } from './vocab-types';
 
 export type NodeType = 'word' | 'sentence' | 'chest' | 'trophy' | 'review' | 'placeholder' | 'reading' | 'listening' | 'speaking' | 'writing' | 'adventure';
 
@@ -28,7 +30,7 @@ const generateStandardNodes = (unitNum: number, unitTitle: string): LessonNode[]
   { id: `u${unitNum}_t1`, type: 'trophy', title: `Maestru U${unitNum}`, items: [] }
 ];
 
-export const learningPath: Section[] = [
+const curatedPath: Section[] = [
   {
     id: 'sec1',
     title: 'Unitatea 1: Vocabular',
@@ -127,4 +129,55 @@ export const learningPath: Section[] = [
   { id: 'sec23', title: 'Unitatea 23: Viitorul II', description: 'Ce vei fi făcut până mâine (Futur II).', unlockRequirement: 'u22_t1', nodes: generateStandardNodes(23, 'Futur II') },
   { id: 'sec24', title: 'Unitatea 24: Participiul ca Adjectiv', description: 'Der lachende Mann.', unlockRequirement: 'u23_t1', nodes: generateStandardNodes(24, 'Participii') },
   { id: 'sec25', title: 'Unitatea 25: Pasiv cu Modale', description: 'Das muss gemacht werden.', unlockRequirement: 'u24_t1', nodes: generateStandardNodes(25, 'Master') },
+];
+
+const WORDS_PER_LESSON = 4;
+const LESSONS_PER_UNIT = 5;
+
+/**
+ * Build successive frequency units from the remaining lesson nouns.
+ * Each unit: up to 5 word-lessons (4 words each) + a review + a trophy,
+ * with unlock requirements chained to the previous unit's trophy.
+ */
+function generateFrequencyUnits(startUnitNum: number, pool: LessonWord[]): Section[] {
+  const sections: Section[] = [];
+  const wordsPerUnit = WORDS_PER_LESSON * LESSONS_PER_UNIT;
+  let unitNum = startUnitNum;
+
+  for (let offset = 0; offset < pool.length; offset += wordsPerUnit) {
+    const unitWords = pool.slice(offset, offset + wordsPerUnit);
+    const nodes: LessonNode[] = [];
+
+    for (let l = 0; l < LESSONS_PER_UNIT; l++) {
+      const chunk = unitWords.slice(l * WORDS_PER_LESSON, (l + 1) * WORDS_PER_LESSON);
+      if (chunk.length === 0) break;
+      nodes.push({
+        id: `u${unitNum}_l${l + 1}`,
+        type: 'word',
+        title: `Vocabular ${l + 1}`,
+        items: chunk,
+      });
+    }
+
+    nodes.push({ id: `u${unitNum}_review`, type: 'review', title: 'Recapitulare', items: [] });
+    nodes.push({ id: `u${unitNum}_t1`, type: 'trophy', title: `Maestru U${unitNum}`, items: [] });
+
+    const first = unitWords[0];
+    const last = unitWords[unitWords.length - 1];
+    sections.push({
+      id: `sec${unitNum}`,
+      title: `Unitatea ${unitNum}: Frecvență`,
+      description: `Cuvinte frecvente (#${first.rank}–#${last.rank}).`,
+      unlockRequirement: `u${unitNum - 1}_t1`,
+      nodes,
+    });
+    unitNum++;
+  }
+
+  return sections;
+}
+
+export const learningPath: Section[] = [
+  ...curatedPath,
+  ...generateFrequencyUnits(26, lessonWords),
 ];

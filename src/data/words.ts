@@ -1,12 +1,5 @@
-export type Article = 'der' | 'die' | 'das';
-
-export interface Word {
-  id: number;
-  german: string;
-  article: Article;
-  translation: string;
-  gender: string;
-}
+export type { Article, Word } from './vocab-types';
+import type { Article, Word } from './vocab-types';
 
 export const basicWords: Word[] = [
   { id: 1, german: 'Tisch', article: 'der', translation: 'masă', gender: 'Masculin' },
@@ -109,3 +102,8 @@ export const puzzles: SentencePuzzle[] = [
     ]
   }
 ];
+
+import { lessonWords } from './generated/lessonWords';
+
+// Global pool for SRS / review lookups: curated words + generated lesson nouns.
+export const allLessonWords: Word[] = [...words, ...lessonWords];

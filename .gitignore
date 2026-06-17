@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Raw vocab source (21MB) — regenerate artifacts via `npm run build:vocab`
+data-source/

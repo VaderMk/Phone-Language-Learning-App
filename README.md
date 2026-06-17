@@ -71,3 +71,18 @@ export default defineConfig([
   },
 ])
 ```
+
+## Vocabular (dicționar de 12.260 cuvinte)
+
+Conținutul de vocabular e generat dintr-un fișier sursă brut prin `scripts/build-vocab.mjs`.
+
+### Regenerare
+
+1. Pune `enriched_vocab_full.json` în `data-source/` (fișierul brut e gitignored).
+2. Rulează `npm run build:vocab`.
+
+Asta produce două artefacte (ambele comise):
+- `public/vocab/dictionary.json` — dicționarul complet, încărcat lazy la runtime (`src/data/dictionary.ts`).
+- `src/data/generated/lessonWords.ts` — substantivele utilizabile (cu gen valid), incluse în bundle și folosite de calea de învățare.
+
+Testează logica de normalizare cu `npm run test:vocab`.
