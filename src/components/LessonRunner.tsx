@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { type LessonNode } from '../data/path';
-import { type Word, type SentencePuzzle as SentencePuzzleType, words, puzzles } from '../data/words';
+import { type Word, type SentencePuzzle as SentencePuzzleType, allLessonWords, puzzles } from '../data/words';
 import { GenderChallenge } from './GenderChallenge';
 import { SentencePuzzle } from './SentencePuzzle';
 import { ProgressTracker } from './ProgressTracker';
@@ -29,12 +29,12 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
         const weakEntries = getWeakWords();
         // Map weak entries back to Word objects
         const weakWords = weakEntries
-          .map(entry => words.find(w => w.id === entry.wordId))
+          .map(entry => allLessonWords.find(w => w.id === entry.wordId))
           .filter((w): w is Word => w !== undefined);
-        
+
         // If we don't have enough weak words, fill with random ones
         const needed = Math.max(0, 5 - weakWords.length);
-        const randomWords = [...words]
+        const randomWords = [...allLessonWords]
           .filter(w => !weakWords.find(ww => ww.id === w.id))
           .sort(() => Math.random() - 0.5)
           .slice(0, needed);
