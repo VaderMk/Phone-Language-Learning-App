@@ -6,7 +6,7 @@
 
 **Architecture:** A Node script (`scripts/build-vocab.mjs`) reads the raw 21 MB source once on the desktop, normalizes noun gender, and emits two artifacts: `public/vocab/dictionary.json` (full rich data, lazy `fetch`) and `src/data/generated/lessonWords.ts` (minimal noun fields, in bundle). Shared types live in `src/data/vocab-types.ts`; `src/data/path.ts` appends auto-generated frequency units after Unit 25.
 
-**Tech Stack:** Node 24 (built-in `node --test`), TypeScript ~6, Vite 6, React 19. No new dependencies.
+**Tech Stack:** Node 22 (built-in `node --test`; note: dir-scanning unsupported, so `test:vocab` uses a glob `"scripts/lib/**/*.test.mjs"`), TypeScript ~6, Vite 6, React 19. No new dependencies.
 
 ---
 
@@ -63,7 +63,7 @@ In `package.json`, replace the `"scripts"` block (lines 6-11) with:
     "lint": "eslint .",
     "preview": "vite preview",
     "build:vocab": "node scripts/build-vocab.mjs",
-    "test:vocab": "node --test scripts/lib/"
+    "test:vocab": "node --test \"scripts/lib/**/*.test.mjs\""
   },
 ```
 
