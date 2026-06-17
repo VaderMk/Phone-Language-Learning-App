@@ -88,10 +88,15 @@ export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSe
           const isCompleted = completedNodes.includes(node.id);
           // A node is locked if its section is locked, or if previous nodes in unlocked sections aren't completed yet
           const isLocked = isSectionLocked || (!allPreviousCompleted && !isCompleted);
-          
+
           if (!isCompleted) {
             allPreviousCompleted = false;
           }
+
+          // Gating (allPreviousCompleted) is advanced for every node above so lock state
+          // stays correct, but only the expanded section builds actual DOM/motion elements.
+          // With 370 sections this avoids mounting ~2,600 buttons on every render.
+          if (!isExpanded) return null;
 
           return (
             <div key={node.id} className={clsx("flex flex-col items-center", getOffset(index))}>
