@@ -25,6 +25,18 @@ Integrarea dicționarului în aplicație ca sursă reală de date și popularea 
 înlocuind lista hardcodată. Aceasta este fundația pe care se vor sprijini funcții viitoare
 (căutare/dicționar, antrenor de gramatică).
 
+## Descompunere în sub-proiecte
+
+Munca a fost descompusă în 3 sub-proiecte independente, construite în ordine (fiecare cu
+specul și planul lui):
+
+1. **Integrarea datelor** — *acest document*. Fundația: pipeline de normalizare, strat de date
+   tipat + loader, populare cale pe frecvență. Toate celelalte depind de el.
+2. **Tipuri noi de lecții** — conjugare verbe, declinare cazuri, flashcard generic. Folosesc
+   datele bogate structurate aici. Brainstorm + spec propriu, după sub-proiectul 1.
+3. **Noduri practice** — reading/listening/speaking/writing/adventure/chest, populate cu
+   propozițiile-exemplu din date. Brainstorm + spec propriu, după sub-proiectul 2.
+
 ## Constrângeri & descoperiri cheie
 
 1. **Mărimea datelor:** fișierul sursă are 21 MB. Aplicația e un site static (Vite + Vercel,
@@ -143,9 +155,9 @@ Cele 2.458 de verbe + 2.685 de alte cuvinte:
 - **Smoke manual**: pornește aplicația, intră într-o unitate generată, confirmă că jocul
   der/die/das primește cuvintele corecte și pronunția (TTS) funcționează.
 
-## Ce NU intră în scop (explicit)
+## Ce NU intră în scopul acestui sub-proiect
 
-- Tipuri noi de lecții (conjugare verbe, declinare cazuri, flashcard generic).
-- UI de căutare/dicționar (deși stratul de date îl pregătește).
-- Popularea nodurilor reading/listening/speaking/writing/adventure/chest.
+- **Tipuri noi de lecții** (conjugare verbe, declinare cazuri, flashcard generic) → sub-proiectul 2.
+- **Popularea nodurilor practice** reading/listening/speaking/writing/adventure/chest → sub-proiectul 3.
+- UI de căutare/dicționar (deși stratul de date îl pregătește) — neplanificat încă.
 - Recategorizarea tematică a unităților 1-25.
