@@ -102,3 +102,8 @@ export const puzzles: SentencePuzzle[] = [
     ]
   }
 ];
+
+import { lessonWords } from './generated/lessonWords';
+
+// Global pool for SRS / review lookups: curated words + generated lesson nouns.
+export const allLessonWords: Word[] = [...words, ...lessonWords];
