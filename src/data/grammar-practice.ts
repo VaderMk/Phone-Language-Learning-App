@@ -199,6 +199,42 @@ export const getDeclensionItems = async (nodeId: string, count = 10): Promise<De
     .filter((it) => it.answer && it.options.length >= 2);
 };
 
+// ─── Adventure (comprehension dialogue) ─────────────────────
+
+export interface AdventureLine {
+  de: string;
+  ro: string;
+  options: Array<{ text: string; correct: boolean }>;
+}
+
+/**
+ * Build a short comprehension dialogue from real example sentences: read the
+ * German line, pick its correct Romanian meaning. Used as the dynamic
+ * fallback for adventure nodes without a hand-scripted story.
+ */
+export const getAdventureLines = async (nodeId: string, count = 4): Promise<AdventureLine[]> => {
+  const dict = await loadDictionary();
+  const unitNum = unitOf(nodeId);
+
+  let pool = dict.filter((e) => e.simple_context?.de && e.simple_context?.ro && inBand(e, unitNum));
+  if (pool.length < count + 3) {
+    pool = dict.filter((e) => e.simple_context?.de && e.simple_context?.ro);
+  }
+
+  const roPool = pool.map((e) => e.simple_context.ro);
+  return shuffle(pool)
+    .slice(0, count)
+    .map((entry) => {
+      const ro = entry.simple_context.ro;
+      const distractors = shuffle([...new Set(roPool.filter((r) => r && r !== ro))]).slice(0, 2);
+      const options = shuffle([
+        { text: ro, correct: true },
+        ...distractors.map((d) => ({ text: d, correct: false })),
+      ]);
+      return { de: entry.simple_context.de, ro, options };
+    });
+};
+
 // ─── Flashcards ─────────────────────────────────────────────
 
 export const getFlashcardItems = async (nodeId: string, count = 10): Promise<FlashcardItem[]> => {

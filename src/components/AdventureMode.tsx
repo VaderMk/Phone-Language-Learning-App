@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { speakGerman } from '../utils/tts';
+import { getAdventureLines } from '../data/grammar-practice';
 
 interface Choice {
   text: string;
@@ -78,8 +79,37 @@ interface AdventureModeProps {
 
 export const AdventureMode: React.FC<AdventureModeProps> = ({ nodeId, onComplete, showOtto }) => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [generated, setGenerated] = useState<DialogueStep[] | null>(null);
 
-  const script = adventureScripts[nodeId] || fallbackScript;
+  const hasScript = Boolean(adventureScripts[nodeId]);
+
+  // For nodes without a hand-written story, build a comprehension dialogue
+  // from real example sentences ("read the German, pick the meaning").
+  useEffect(() => {
+    if (hasScript) return;
+    let active = true;
+    getAdventureLines(nodeId).then((lines) => {
+      if (!active || lines.length === 0) return;
+      setGenerated(
+        lines.map((line) => ({
+          characterName: 'Otto',
+          characterEmoji: '🦉',
+          germanText: line.de,
+          translation: line.ro,
+          choices: line.options.map((o) => ({
+            text: o.text,
+            isCorrect: o.correct,
+            errorMessage: 'Nu chiar. Recitește propoziția germană și ascult-o din nou.',
+          })),
+        })),
+      );
+    });
+    return () => {
+      active = false;
+    };
+  }, [nodeId, hasScript]);
+
+  const script = adventureScripts[nodeId] || generated || fallbackScript;
   const step = script[currentStepIndex];
 
   useEffect(() => {
@@ -91,8 +121,9 @@ export const AdventureMode: React.FC<AdventureModeProps> = ({ nodeId, onComplete
   }, [currentStepIndex, step]);
 
   const handleChoice = (choice: Choice) => {
-    // Speak the user's choice
-    speakGerman(choice.text);
+    // Scripted choices are German, so speak them. Generated choices are the
+    // Romanian meaning — speaking those with a German voice would be gibberish.
+    if (hasScript) speakGerman(choice.text);
 
     if (choice.isCorrect) {
       if (currentStepIndex < script.length - 1) {
