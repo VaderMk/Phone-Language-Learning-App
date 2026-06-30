@@ -6,6 +6,10 @@ import { SentencePuzzle } from './SentencePuzzle';
 import { ProgressTracker } from './ProgressTracker';
 import { AdventureMode } from './AdventureMode';
 import { VisionQuest } from './VisionQuest';
+import { ReadingExercise } from './ReadingExercise';
+import { ListeningExercise } from './ListeningExercise';
+import { SpeakingExercise } from './SpeakingExercise';
+import { WritingExercise } from './WritingExercise';
 import { motion } from 'framer-motion';
 import { playSuccessSound, playErrorSound } from '../utils/audio';
 import confetti from 'canvas-confetti';
@@ -82,29 +86,39 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
     );
   }
 
-  // If it's a practice placeholder
+  // Functional practice exercises: reading / listening / speaking / writing
   if (['reading', 'listening', 'speaking', 'writing'].includes(node.type)) {
+    const labels: Record<string, string> = {
+      reading: 'Citire',
+      listening: 'Ascultare',
+      speaking: 'Vorbire',
+      writing: 'Scriere',
+    };
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full max-w-md p-6 text-center">
-        <motion.div 
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className="text-8xl mb-8"
-        >
-          🚧
-        </motion.div>
-        <h2 className="text-3xl font-extrabold text-white mb-4 capitalize">
-          Modul {node.type}
-        </h2>
-        <p className="text-slate-300 mb-12">
-          Această lecție practică este în curs de dezvoltare.
-        </p>
-        <button
-          onClick={onComplete}
-          className="w-full py-4 rounded-2xl text-lg font-bold bg-indigo-600 hover:bg-indigo-500 text-white border-b-4 border-indigo-700 active:translate-y-1 active:border-b-0 transition-all shadow-xl"
-        >
-          Simulează Completarea
-        </button>
+      <div className="flex flex-col w-full h-full max-w-md mx-auto pt-6 px-4 pb-6">
+        <div className="flex items-center mb-4">
+          <button onClick={onBack} className="text-slate-400 hover:text-white p-2">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <h2 className="flex-1 text-center text-lg font-bold text-white pr-8">{labels[node.type]}</h2>
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar">
+          {node.type === 'reading' && (
+            <ReadingExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+          {node.type === 'listening' && (
+            <ListeningExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+          {node.type === 'speaking' && (
+            <SpeakingExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+          {node.type === 'writing' && (
+            <WritingExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+        </div>
       </div>
     );
   }

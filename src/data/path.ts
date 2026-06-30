@@ -24,7 +24,9 @@ const generateStandardNodes = (unitNum: number, unitTitle: string): LessonNode[]
   { id: `u${unitNum}_l1`, type: 'placeholder', title: `Lecția 1: ${unitTitle}`, items: [] },
   { id: `u${unitNum}_l2`, type: 'placeholder', title: 'Gramatică', items: [] },
   { id: `u${unitNum}_r1`, type: 'reading', title: 'Citire', items: [] },
+  { id: `u${unitNum}_li1`, type: 'listening', title: 'Ascultare', items: [] },
   { id: `u${unitNum}_s1`, type: 'speaking', title: 'Vorbire', items: [] },
+  { id: `u${unitNum}_w1`, type: 'writing', title: 'Scriere', items: [] },
   { id: `u${unitNum}_a1`, type: 'adventure', title: 'Aventură', items: [] },
   { id: `u${unitNum}_review`, type: 'review', title: 'Unit Review', items: [] },
   { id: `u${unitNum}_t1`, type: 'trophy', title: `Maestru U${unitNum}`, items: [] }
