@@ -3,7 +3,7 @@ import { type Word, type SentencePuzzle } from './words';
 import { lessonWords } from './generated/lessonWords';
 import type { LessonWord } from './vocab-types';
 
-export type NodeType = 'word' | 'sentence' | 'chest' | 'trophy' | 'review' | 'placeholder' | 'reading' | 'listening' | 'speaking' | 'writing' | 'adventure';
+export type NodeType = 'word' | 'sentence' | 'chest' | 'trophy' | 'review' | 'placeholder' | 'reading' | 'listening' | 'speaking' | 'writing' | 'adventure' | 'conjugation' | 'declension' | 'flashcard';
 
 export interface LessonNode {
   id: string;
@@ -22,7 +22,10 @@ export interface Section {
 
 const generateStandardNodes = (unitNum: number, unitTitle: string): LessonNode[] => [
   { id: `u${unitNum}_l1`, type: 'placeholder', title: `Lecția 1: ${unitTitle}`, items: [] },
+  { id: `u${unitNum}_f1`, type: 'flashcard', title: 'Cuvinte noi', items: [] },
   { id: `u${unitNum}_l2`, type: 'placeholder', title: 'Gramatică', items: [] },
+  { id: `u${unitNum}_cj1`, type: 'conjugation', title: 'Conjugare', items: [] },
+  { id: `u${unitNum}_dc1`, type: 'declension', title: 'Declinare', items: [] },
   { id: `u${unitNum}_r1`, type: 'reading', title: 'Citire', items: [] },
   { id: `u${unitNum}_li1`, type: 'listening', title: 'Ascultare', items: [] },
   { id: `u${unitNum}_s1`, type: 'speaking', title: 'Vorbire', items: [] },

@@ -10,6 +10,9 @@ import { ReadingExercise } from './ReadingExercise';
 import { ListeningExercise } from './ListeningExercise';
 import { SpeakingExercise } from './SpeakingExercise';
 import { WritingExercise } from './WritingExercise';
+import { ConjugationExercise } from './ConjugationExercise';
+import { DeclensionExercise } from './DeclensionExercise';
+import { FlashcardExercise } from './FlashcardExercise';
 import { motion } from 'framer-motion';
 import { playSuccessSound, playErrorSound } from '../utils/audio';
 import confetti from 'canvas-confetti';
@@ -93,12 +96,16 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
   }
 
   // Functional practice exercises: reading / listening / speaking / writing
-  if (['reading', 'listening', 'speaking', 'writing'].includes(node.type)) {
+  // plus the grammar lesson types: conjugation / declension / flashcard
+  if (['reading', 'listening', 'speaking', 'writing', 'conjugation', 'declension', 'flashcard'].includes(node.type)) {
     const labels: Record<string, string> = {
       reading: 'Citire',
       listening: 'Ascultare',
       speaking: 'Vorbire',
       writing: 'Scriere',
+      conjugation: 'Conjugare',
+      declension: 'Declinare',
+      flashcard: 'Cuvinte noi',
     };
     return (
       <div className="flex flex-col w-full h-full max-w-md mx-auto pt-6 px-4 pb-6">
@@ -123,6 +130,15 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
           )}
           {node.type === 'writing' && (
             <WritingExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+          {node.type === 'conjugation' && (
+            <ConjugationExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+          {node.type === 'declension' && (
+            <DeclensionExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
+          )}
+          {node.type === 'flashcard' && (
+            <FlashcardExercise nodeId={node.id} onComplete={onComplete} showOtto={showOtto} />
           )}
         </div>
       </div>

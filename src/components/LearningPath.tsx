@@ -31,6 +31,9 @@ export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSe
       case 'speaking': return 'bg-orange-500 border-orange-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.6)]';
       case 'writing': return 'bg-pink-500 border-pink-600 text-white shadow-[0_0_20px_rgba(236,72,153,0.6)]';
       case 'adventure': return 'bg-violet-500 border-violet-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.6)]';
+      case 'conjugation': return 'bg-amber-500 border-amber-600 text-white shadow-[0_0_20px_rgba(245,158,11,0.6)]';
+      case 'declension': return 'bg-cyan-500 border-cyan-600 text-white shadow-[0_0_20px_rgba(6,182,212,0.6)]';
+      case 'flashcard': return 'bg-lime-500 border-lime-600 text-white shadow-[0_0_20px_rgba(132,204,22,0.6)]';
       case 'review': return 'bg-purple-500 border-purple-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.6)]';
       case 'chest': return 'bg-emerald-500 border-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.6)]';
       case 'trophy': return 'bg-fuchsia-500 border-fuchsia-600 text-white shadow-[0_0_20px_rgba(217,70,239,0.6)]';
@@ -50,6 +53,9 @@ export const LearningPath: React.FC<LearningPathProps> = ({ completedNodes, onSe
       case 'speaking': return '🗣️';
       case 'writing': return '✍️';
       case 'adventure': return '🗺️';
+      case 'conjugation': return '🔀';
+      case 'declension': return '📐';
+      case 'flashcard': return '🃏';
       case 'review': return '🔥';
       case 'chest': return '🎁';
       case 'trophy': return '🏆';
