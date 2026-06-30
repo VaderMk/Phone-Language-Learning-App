@@ -171,6 +171,23 @@ export const getRichReadingExercise = async (nodeId: string): Promise<ReadingExe
   }
 };
 
+// ─── Vocabulary lessons (placeholder nodes) ─────────────────
+
+/**
+ * Real vocabulary for a `placeholder` lesson node (e.g. "Lecția 1",
+ * "Gramatică") so it teaches words instead of showing a blank screen.
+ * Different lesson slots within a unit get distinct sub-bands.
+ */
+export const getLessonWords = (nodeId: string, count = 5): Word[] => {
+  const pool = poolForUnit(unitOf(nodeId));
+  // Offset by the lesson slot number so l1 and l2 don't repeat words.
+  const slotMatch = nodeId.match(/_l(\d+)$/);
+  const slot = slotMatch ? parseInt(slotMatch[1], 10) - 1 : 0;
+  const start = (slot * count) % Math.max(1, pool.length - count);
+  const slice = pool.slice(start, start + count);
+  return slice.length >= count ? slice : pool.slice(0, count);
+};
+
 // ─── Listening / Speaking / Writing ─────────────────────────
 
 export const getListeningItems = (nodeId: string, count = 12): ListeningItem[] => {

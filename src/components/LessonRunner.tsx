@@ -48,6 +48,12 @@ export const LessonRunner: React.FC<LessonRunnerProps> = ({ node, onComplete, on
         const mixed = [...selectedWords, ...shuffledPuzzles].sort(() => Math.random() - 0.5);
         setDynamicItems(mixed);
       });
+    } else if (node.type === 'placeholder' && node.items.length === 0) {
+      // Placeholder lessons (e.g. "Lecția 1", "Gramatică") had no content and
+      // rendered a blank screen — fill them with real vocabulary to learn.
+      import('../data/practice').then(({ getLessonWords }) => {
+        setDynamicItems(getLessonWords(node.id));
+      });
     } else {
       setDynamicItems(node.items);
     }
